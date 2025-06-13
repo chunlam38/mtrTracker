@@ -36,3 +36,5 @@
 /Users/chunlam/Desktop/MtrTracker/bin/Debug/net9.0/frontend/package.json
 /Users/chunlam/Desktop/MtrTracker/bin/Debug/net9.0/frontend/public/manifest.json
 /Users/chunlam/Desktop/MtrTracker/bin/Debug/net9.0/package-lock.json
+/Users/chunlam/Desktop/MtrTracker/obj/Debug/net9.0/MtrTracker.sourcelink.json
+/Users/chunlam/Desktop/MtrTracker/bin/Debug/net9.0/frontend/src/data/stationLayout.json
