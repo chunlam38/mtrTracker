@@ -16,28 +16,47 @@ public class TrainSchedulesController : ControllerBase
     [HttpGet("{stationName}")]
     public async Task<IActionResult> GetTrainSchedules(string stationName)
     {
-        // Decode the URL-encoded station name (this handles spaces like '%20')
+        // Decode the URL-encoded station name
         string decodedStationName = HttpUtility.UrlDecode(stationName);
 
         // Check if the station name exists in the mappings
         if (!StationMappings.StationNameToCode.ContainsKey(decodedStationName))
         {
-            return NotFound("Station name not found.");
+            return NotFound($"Station '{decodedStationName}' not found.");
         }
 
+        // Get the station code and lines
         var stationCode = StationMappings.StationNameToCode[decodedStationName];
         var lines = StationMappings.StationNameToLines[decodedStationName];
 
-        // Assuming we just want the first line for simplicity
-        var line = lines.FirstOrDefault();
+        // Create a dictionary to store schedules for each line
+        var allSchedules = new Dictionary<string, StationInformation>();
 
-        var trainSchedules = await _mtrService.GetTrainSchedules(line, stationCode);
-        
-        if (trainSchedules == null)
+        // Fetch schedules for each line
+        foreach (var line in lines)
         {
-            return NotFound("No train schedules found for this station.");
+            try
+            {
+                var schedule = await _mtrService.GetTrainSchedules(line, stationCode);
+                if (schedule != null)
+                {
+                    // Use the line name from the Lines dictionary
+                    var lineName = StationMappings.Lines[line].name;
+                    allSchedules[lineName] = schedule;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but continue with other lines
+                Console.WriteLine($"Error fetching schedule for line {line}: {ex.Message}");
+            }
         }
-        
-        return Ok(trainSchedules);
+
+        if (allSchedules.Count == 0)
+        {
+            return NotFound($"No train schedules found for station '{decodedStationName}'.");
+        }
+
+        return Ok(allSchedules);
     }
 }
